@@ -10,9 +10,9 @@ app.config['MYSQL_USER'] = 'root'
 mysql = MySQL(app)
 @app.route('/')
 def home():
-    cur = mysql.new_cursor(dictionary=True)
-    cur.execute('CREATE DATABASE DBMS_PROJ')
-    return "hello world"
+    # cur = mysql.new_cursor(dictionary=True)
+    # cur.execute('CREATE DATABASE DBMS_PROJ')
+    return render_template('index.html')
 
 if __name__ == "__main__":
     app.run(debug=True)
