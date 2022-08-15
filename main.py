@@ -1,18 +1,36 @@
 from flask import Flask, render_template, request
-from flask_mysql_connector import MySQL
-#
+import mysql.connector
+from mysql.connector import errorcode
 app = Flask(__name__)
-#
-# app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-# app.config['MYSQL_PASSWORD'] = ''
 
-mysql = MySQL(app)
+try:
+  cnx = mysql.connector.connect(user='root',
+                                database='DBMS_PROJ')
+  print("Success")
+except mysql.connector.Error as err:
+  if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+    print("Something is wrong with your user name or password")
+  elif err.errno == errorcode.ER_BAD_DB_ERROR:
+    print("Database does not exist")
+  else:
+    print(err)
+else:
+  cnx.close()
+
+
 @app.route('/')
 def home():
-    # cur = mysql.new_cursor(dictionary=True)
-    # cur.execute('CREATE DATABASE DBMS_PROJ')
-    return render_template('index.html')
+    cnx = mysql.connector.connect(user='root',
+                                  database='DBMS_PROJ')
+    cursor = cnx.cursor()
+    try:
+        cursor.execute("INSERT INTO TEST VALUES(20)")
+        cnx.commit()
+        return "success"
+    except mysql.connector.Error as err:
+        print(err)
+        return "error"
+
 
 if __name__ == "__main__":
     app.run(debug=True)
