@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import mysql.connector
 from mysql.connector import errorcode
 import  json
+from flask_cors import CORS, cross_origin
 from Utils.decorators import *
 app = Flask(__name__)
-
+CORS(app)
 try:
   cnx = mysql.connector.connect(user='root',
                                 database='DBMS_PROJ')
@@ -33,7 +34,6 @@ def home():
     except mysql.connector.Error as err:
         print(err)
         return "error"
-@async_caller
 @app.route('/getAllClients')
 def clients():
     cnxx = mysql.connector.connect(user='root',
@@ -88,26 +88,30 @@ def clients():
     return data;
 
 
-@app.route('/addInvoice')
+@app.route('/addInvoice' ,  methods=['GET', 'POST'])
 def add_invoice():
     cnxx = mysql.connector.connect(user='root',
                                    database='DBMS_PROJ')
     cursor = cnxx.cursor();
     data = request.json
-    print(data['destination'])
+    print(data)
     try:
+        print("TRY 1")
+        cursor.execute(f"INSERT INTO CLIENT(ACC_NUM,CITY,GST_NUM,LOCALITY,MS,PINCODE,STATE) VALUES('{data['acc_num']}','{data['city']}','{data['gst_num']}','{data['locality']}','{data['ms']}','{data['pincode']}','{data['state']}');")
         cursor.execute(
             f"INSERT INTO CONTAINER (CONTAINER_NUM,DESTINATION,VESSEL) VALUES('{data['container_num']}','{data['destination']}','{data['vessel']}');")
         cursor.execute(f"INSERT INTO SHIPPING_AGENT(INVOICE_NUM,MS)VALUES('{data['invoice_num']}','{data['ms']}')")
         cursor.execute(
             f"INSERT INTO CHARGES (AMOUNT,CHARGE_TYPE,CONTAINER_NUM,CURRENCY,INVOICE_NUM,QUANTITY,RATE) VALUES('{data['amount']}','{data['charge_type']}','{data['container_num']}','{data['currency']}','{data['invoice_num']}','{data['quantity']}','{data['rate']}')")
-
+        print("tr33")
         cnxx.commit()
+        return data
     except Exception as err:
         print(err)
+        print("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
         return err
 
-    return data
+
 
 
 
