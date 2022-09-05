@@ -40,52 +40,28 @@ def clients():
                                    database='DBMS_PROJ')
     cursor = cnxx.cursor();
     tempDict={
-        "ms":'',
-        "gst_num":'',
-        "locality":'',
-        "city":'',
-        "state":'',
-        "pincode":'',
-        "acc_num":''
-    }
-    # try:
-    #     cursor.execute("SELECT * FROM CLIENT")
-    #     result=cursor.fetchall();
-    #     data=[]
-    #     for x in result:
-    #         #print(x)
-    #         tempDict["ms"]=x[0]
-    #         tempDict["gst_num"]=x[1]
-    #         tempDict["locality"]=x[2]
-    #         tempDict["city"]=x[3]
-    #         tempDict["state"]=x[4]
-    #         tempDict["pincode"]=x[5]
-    #         tempDict["acc_num"]=x[6]
-    #         data.append(tempDict)
-    #
-    #     final = json.dumps(data, indent=2)
-    #     print(final)
-    #     return data;
-    # except mysql.connector.Error as err:
-    #     print(err)
-    #     return "error"
-    cursor.execute("SELECT * FROM CLIENT")
-    result = cursor.fetchall();
-    data = []
-    for x in result:
-        # print(x)
-        tempDict["ms"] = x[0]
-        tempDict["gst_num"] = x[1]
-        tempDict["locality"] = x[2]
-        tempDict["city"] = x[3]
-        tempDict["state"] = x[4]
-        tempDict["pincode"] = x[5]
-        tempDict["acc_num"] = x[6]
-        data.append(tempDict)
 
-    final = json.dumps(data, indent=2)
-    print(final)
-    return data;
+    }
+    try:
+        cursor.execute("SELECT CLIENT.MS,SHIPPING_AGENT.INVOICE_NUM,DATE,CONTAINER.CONTAINER_NUM,DESTINATION,AMOUNT FROM CLIENT,CHARGES,CONTAINER,SHIPPING_AGENT;")
+        result=cursor.fetchall();
+        data=[]
+        for x in result:
+            #print(x)
+            tempDict["ms"]=x[0]
+            tempDict["invoice_num"]=x[1]
+            tempDict["date"]=x[2]
+            tempDict["container_num"]=x[3]
+            tempDict["destination"]=x[4]
+            tempDict["amount"]=x[5]
+            data.append(tempDict)
+
+        final = json.dumps(data, indent=2)
+        print(final)
+        return data;
+    except mysql.connector.Error as err:
+        print(err)
+        return "error"
 
 
 @app.route('/addInvoice' ,  methods=['GET', 'POST'])
@@ -100,7 +76,7 @@ def add_invoice():
         cursor.execute(f"INSERT INTO CLIENT(ACC_NUM,CITY,GST_NUM,LOCALITY,MS,PINCODE,STATE) VALUES('{data['acc_num']}','{data['city']}','{data['gst_num']}','{data['locality']}','{data['ms']}','{data['pincode']}','{data['state']}');")
         cursor.execute(
             f"INSERT INTO CONTAINER (CONTAINER_NUM,DESTINATION,VESSEL) VALUES('{data['container_num']}','{data['destination']}','{data['vessel']}');")
-        cursor.execute(f"INSERT INTO SHIPPING_AGENT(INVOICE_NUM,MS)VALUES('{data['invoice_num']}','{data['ms']}')")
+        cursor.execute(f"INSERT INTO SHIPPING_AGENT(INVOICE_NUM,MS,DATE)VALUES('{data['invoice_num']}','{data['ms']}',NOW())")
         cursor.execute(
             f"INSERT INTO CHARGES (AMOUNT,CHARGE_TYPE,CONTAINER_NUM,CURRENCY,INVOICE_NUM,QUANTITY,RATE) VALUES('{data['amount']}','{data['charge_type']}','{data['container_num']}','{data['currency']}','{data['invoice_num']}','{data['quantity']}','{data['rate']}')")
         print("tr33")

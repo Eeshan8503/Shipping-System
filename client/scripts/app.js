@@ -55,21 +55,7 @@ $('#myform').submit(function(event){
     data=JSON.stringify(data)
     console.log(data);
     fetcher(data)
-    // $.ajax({
-    //     type: 'POST',
-    //     url: 'http://localhost:5000/addInvoice',
-    //     crossDomain: true,
-    //     data: data,
-    //     dataType: 'json',
-    //     contentType: "application/json; charset=utf-8",
-    //     success: function(responseData, textStatus, jqXHR) {
-    //         alert('yay')
-    //     },
-    //     error: function (responseData, textStatus, errorThrown) {
-    //         alert('POST failed.');
-    //         console.log(errorThrown)
-    //     }
-    // });
+
     event.preventDefault();
 });
 const fetcher = async (data) => {
