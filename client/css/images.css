@@ -1,0 +1,48 @@
+.ship{
+position: relative;
+width: 50%;
+}
+.plane{
+position: relative;
+width: 70%;
+}
+.rajMap{
+   width: 30%;
+    margin-left: 20%;
+    margin-right: 8%;
+}
+.growth{
+    width: 10%;
+  
+  
+}
+
+.handshake{
+    width: 10%;
+  margin-left: 10%;
+  
+}
+
+.dollar{
+    width: 10%;
+    margin-left: 10%;
+    
+}
+
+.ship{
+    position: relative;
+    width: 60%;
+}
+
+.analy{
+    width: 12%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+.coop{
+    width: 12%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+
+}
