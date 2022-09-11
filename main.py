@@ -91,7 +91,7 @@ def add_invoice():
         response["message"]=err.msg
         return response
 
-@app.route('/admin')
+@app.route('/admin' , methods=['GET', 'POST'])
 def admin():
     cnxx = mysql.connector.connect(user='root',
                                    database='DBMS_PROJ')
@@ -112,17 +112,17 @@ def admin():
         table=table+i+" ";
     space = table.count(" ");
     table=table.replace(' ',',',space-1);
-    query=f"SELECT {projections} FROM {table}"
+    query=f"SELECT DISTINCT {projections} FROM {table}"
     # print(query)
     cursor.execute(query)
     result = cursor.fetchall();
     # print(result)
     # print(lst)
     result.append(query)
-    print(result[len(result)-1])
-    return (result)
+    # print(result[len(result)-1])
+    return result
 
-@app.route('/createView')
+@app.route('/createView',methods=['GET', 'POST'])
 def createView():
     cnxx = mysql.connector.connect(user='root',
                                    database='DBMS_PROJ')
@@ -130,23 +130,26 @@ def createView():
     data = request.json;
     name=data['name'];
     query=data['query']
+    print(name)
+    print(query)
+    response = {
+        "message": "View created"
+    }
     try:
         cursor.execute(f"Create VIEW {name} as {query}");
         cnxx.commit();
-        response={
-            "message":"View created"
-        }
-        return response;
+        return response
     except mysql.connector.Error as err:
         print(err.msg)
         response["message"]=err.msg
         return response
-@app.route('/runQuery')
+@app.route('/runQuery', methods=['GET', 'POST'])
 def run_query():
     cnxx = mysql.connector.connect(user='root',
                                    database='DBMS_PROJ')
     cursor = cnxx.cursor();
     query=request.json['query'];
+    query=query.upper()
     response = {
         "message":""
     }
