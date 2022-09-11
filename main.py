@@ -47,21 +47,22 @@ def clients():
         result=cursor.fetchall();
         data=[]
         for x in result:
-            #print(x)
+            print(x)
             tempDict["ms"]=x[0]
             tempDict["invoice_num"]=x[1]
-            tempDict["date"]=x[2]
+            # if x[2]!=None:
+            #     tempDict["date"]=x[2]
             tempDict["container_num"]=x[3]
             tempDict["destination"]=x[4]
             tempDict["amount"]=x[5]
             data.append(tempDict)
 
         final = json.dumps(data, indent=2)
-        print(final)
-        return data;
+        print("here")
+        return jsonify(data);
     except mysql.connector.Error as err:
         print(err)
-        return "error"
+        return jsonify({"error": err})
 
 
 @app.route('/addInvoice' ,  methods=['GET', 'POST'])
@@ -71,6 +72,9 @@ def add_invoice():
     cursor = cnxx.cursor();
     data = request.json
     print(data)
+    response = {
+        "message": ""
+    }
     try:
         print("TRY 1")
         cursor.execute(f"INSERT INTO CLIENT(ACC_NUM,CITY,GST_NUM,LOCALITY,MS,PINCODE,STATE) VALUES('{data['acc_num']}','{data['city']}','{data['gst_num']}','{data['locality']}','{data['ms']}','{data['pincode']}','{data['state']}');")
@@ -82,14 +86,103 @@ def add_invoice():
         print("tr33")
         cnxx.commit()
         return data
-    except Exception as err:
-        print(err)
-        print("heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
-        return err
+    except mysql.connector.Error as err:
+        print(err.msg)
+        response["message"]=err.msg
+        return response
+
+@app.route('/admin')
+def admin():
+    cnxx = mysql.connector.connect(user='root',
+                                   database='DBMS_PROJ')
+    cursor = cnxx.cursor();
+    data = request.json;
+    lst = data['filter']
+    projections=""
+    for i in lst:
+        i=i.upper()
+        projections=projections+i+" ";
+    space=projections.count(" ");
+    # print(space)
+    projections=projections.replace(' ',',',space-1)
+    table="";
+    lst2=data['table'];
+    for i in lst2:
+        i=i.upper()
+        table=table+i+" ";
+    space = table.count(" ");
+    table=table.replace(' ',',',space-1);
+    query=f"SELECT {projections} FROM {table}"
+    # print(query)
+    cursor.execute(query)
+    result = cursor.fetchall();
+    # print(result)
+    # print(lst)
+    result.append(query)
+    print(result[len(result)-1])
+    return (result)
+
+@app.route('/createView')
+def createView():
+    cnxx = mysql.connector.connect(user='root',
+                                   database='DBMS_PROJ')
+    cursor = cnxx.cursor();
+    data = request.json;
+    name=data['name'];
+    query=data['query']
+    try:
+        cursor.execute(f"Create VIEW {name} as {query}");
+        cnxx.commit();
+        response={
+            "message":"View created"
+        }
+        return response;
+    except mysql.connector.Error as err:
+        print(err.msg)
+        response["message"]=err.msg
+        return response
+@app.route('/runQuery')
+def run_query():
+    cnxx = mysql.connector.connect(user='root',
+                                   database='DBMS_PROJ')
+    cursor = cnxx.cursor();
+    query=request.json['query'];
+    response = {
+        "message":""
+    }
+    try:
+        cursor.execute(query)
+        result=cursor.fetchall()
+        cnxx.commit()
+        return result
 
 
+    except mysql.connector.Error as err:
+        print(err.msg)
+        response["message"]=err.msg
+        return response
+@app.route('/search')
+def search():
+    cnxx = mysql.connector.connect(user='root',
+                                   database='DBMS_PROJ')
+    cursor = cnxx.cursor();
+    data=request.json
+    response = {
+        "message": ""
+    }
+    query=f"SELECT * FROM {data['from']} WHERE {data['field']} = {data['equals']}"
+    try:
+        cursor.execute(query)
+        result=cursor.fetchall()
+        return result
 
+    except mysql.connector.Error as err:
+        print(err.msg)
+        response["message"]=err.msg
+        return response
 
+app.route('/stats')
+def stats():
 
 if __name__ == "__main__":
     app.run(debug=True)
