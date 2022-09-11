@@ -181,8 +181,7 @@ def search():
         response["message"]=err.msg
         return response
 
-app.route('/stats')
-def stats():
+
 
 if __name__ == "__main__":
     app.run(debug=True)
